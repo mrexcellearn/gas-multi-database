@@ -24,47 +24,47 @@ function extractSheetId(url) {
 
 /**
  * REGISTER USER
- * Menerima data dari frontend, ekstrak ID, tes akses, lalu simpan ke Master Sheet
  */
 function registerUser(data) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const userSheet = ss.getSheetByName("Users");
     
-    // Cek apakah username sudah ada
+    // Cek apakah username sudah ada (Anti spasi & Case Insensitive)
     const dataUsers = userSheet.getDataRange().getValues();
+    const inputUser = data.username.toString().trim().toLowerCase();
+    
     for (let i = 1; i < dataUsers.length; i++) {
-      if (dataUsers[i][2].toString().toLowerCase() === data.username.toLowerCase()) {
+      if (dataUsers[i][2].toString().trim().toLowerCase() === inputUser) {
         throw new Error("Username sudah digunakan. Silakan pilih yang lain.");
       }
     }
     
-    // Ekstrak ID dari URL
+    // Ekstrak ID
     const sheetId = extractSheetId(data.sheetUrl);
     if (!sheetId) {
       throw new Error("URL tidak valid. Pastikan Anda menyalin URL Google Sheet yang benar.");
     }
     
-    // TES AKSES: Coba buka sheet user untuk memastikan permission sudah 'Anyone with link can edit'
+    // TES AKSES
     try {
       const testOpen = SpreadsheetApp.openById(sheetId);
-      // Validasi tambahan: Pastikan sheet template memiliki tab yang dibutuhkan
       if (!testOpen.getSheetByName("Transaksi") || !testOpen.getSheetByName("Kategori") || !testOpen.getSheetByName("Akun")) {
-         throw new Error("File Sheet Anda tidak memiliki tab 'Transaksi', 'Kategori', atau 'Akun'. Pastikan Anda menggunakan Template yang benar.");
+         throw new Error("File Sheet Anda tidak memiliki tab 'Transaksi', 'Kategori', atau 'Akun'. Pastikan Template sudah disalin dengan benar.");
       }
     } catch (openErr) {
-      throw new Error("Akses ditolak! Pastikan Anda sudah mengubah akses share menjadi 'Anyone with the link can edit' (Siapa saja yang memiliki link dapat mengedit).");
+      throw new Error("Akses ditolak! Pastikan Anda sudah mengubah akses share menjadi 'Anyone with the link' (Siapa saja yang memiliki link) -> 'Editor'.");
     }
     
     // Simpan data
     const timestamp = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'dd/MM/yyyy HH:mm:ss');
-    const idUser = "USR-" + new Date().getTime(); // ID Unik simpel
+    const idUser = "USR-" + new Date().getTime();
     
     userSheet.appendRow([
       timestamp,
       idUser,
-      data.username,
-      data.password, // Untuk uji coba ini plaintext, real app harus di-hash
+      data.username.trim(), // Simpan username yang sudah di-trim
+      data.password.toString(), // Paksa simpan sebagai string
       sheetId
     ]);
     
@@ -77,7 +77,7 @@ function registerUser(data) {
 }
 
 /**
- * LOGIN USER
+ * LOGIN USER (FIXED)
  */
 function loginUser(data) {
   try {
@@ -85,44 +85,50 @@ function loginUser(data) {
     const userSheet = ss.getSheetByName("Users");
     const dataUsers = userSheet.getDataRange().getValues();
     
+    // Standarisasi Input User (Hapus spasi, jadikan huruf kecil, jadikan string)
+    const inputUser = data.username.toString().trim().toLowerCase();
+    const inputPass = data.password.toString();
+    
     for (let i = 1; i < dataUsers.length; i++) {
       const row = dataUsers[i];
-      if (row[2] === data.username && row[3] === data.password) {
+      // Standarisasi Data Database (Mencegah bug tipe data Number vs String)
+      const dbUser = row[2].toString().trim().toLowerCase();
+      const dbPass = row[3].toString();
+      
+      if (dbUser === inputUser && dbPass === inputPass) {
         return {
           status: "success",
           user: {
             idUser: row[1],
-            username: row[2],
+            username: row[2], // Tampilkan username asli dari database
             sheetId: row[4]
           }
         };
       }
     }
-    throw new Error("Username atau Password salah.");
+    throw new Error("Username atau Password salah. Periksa kembali ketikan Anda.");
   } catch (err) {
     return { status: "error", message: err.message };
   }
 }
 
 /**
- * AMBIL DATA KATEGORI & AKUN UNTUK DROPDOWN (Batch Processing)
+ * AMBIL DATA KATEGORI & AKUN
  */
 function getDashboardData(sheetId) {
   try {
     const userSs = SpreadsheetApp.openById(sheetId);
     
-    // Ambil Kategori (Asumsi Kolom B adalah Nama Kategori, Kolom C adalah Tipe)
     const catSheet = userSs.getSheetByName("Kategori");
     const catData = catSheet.getRange(2, 2, catSheet.getLastRow() || 2, 2).getValues().filter(r => r[0] !== "");
     
-    // Ambil Akun (Asumsi Kolom B adalah Nama Akun)
     const accSheet = userSs.getSheetByName("Akun");
     const accData = accSheet.getRange(2, 2, accSheet.getLastRow() || 2, 1).getValues().filter(r => r[0] !== "");
     
     return {
       status: "success",
-      kategori: catData, // Array of [Nama_Kategori, Tipe]
-      akun: accData.map(r => r[0]) // Array of Nama_Akun
+      kategori: catData, 
+      akun: accData.map(r => r[0]) 
     };
   } catch (err) {
     return { status: "error", message: "Gagal mengambil master data: " + err.message };
@@ -130,7 +136,7 @@ function getDashboardData(sheetId) {
 }
 
 /**
- * TAMBAH TRANSAKSI KE SHEET USER
+ * TAMBAH TRANSAKSI
  */
 function addTransaction(sheetId, data) {
   try {
@@ -140,7 +146,6 @@ function addTransaction(sheetId, data) {
     const timestamp = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'dd/MM/yyyy HH:mm:ss');
     const idTrans = "TRX-" + new Date().getTime();
     
-    // Struktur: Tanggal | ID_Transaksi | Akun | Kategori | Tipe | Nominal | Keterangan
     const rowData = [
       timestamp,
       idTrans,
@@ -152,7 +157,7 @@ function addTransaction(sheetId, data) {
     ];
     
     transSheet.appendRow(rowData);
-    SpreadsheetApp.flush(); // Anti-Delay Sync
+    SpreadsheetApp.flush(); 
     
     return { status: "success", message: "Transaksi berhasil dicatat!" };
   } catch (err) {
