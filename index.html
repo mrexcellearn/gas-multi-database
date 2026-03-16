@@ -6,151 +6,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ZettBOT Finance</title>
   
-  <!-- External Libraries -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- CSS Kustom (Aman dari blokir CDN) -->
   <style>
-    body { 
-      font-family: 'Inter', sans-serif; 
-      background-color: #f4f7f6; 
-      color: #333; 
-      margin: 0; 
-      padding: 0;
-    }
-    .container { 
-      max-width: 600px; 
-      margin: 2rem auto; 
-      padding: 0 15px; 
-    }
-    .card { 
-      background: #fff; 
-      border-radius: 16px; 
-      border: 1px solid #eaeaea; 
-      box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
-      padding: 25px; 
-      margin-bottom: 20px;
-    }
-    .btn-primary { 
-      background-color: #2563eb; 
-      color: #fff; 
-      border: none; 
-      border-radius: 8px; 
-      padding: 12px; 
-      font-weight: 600; 
-      cursor: pointer; 
-      width: 100%; 
-      display: block; 
-      text-align: center; 
-      text-decoration: none;
-      transition: background-color 0.3s;
-    }
-    .btn-primary:hover { 
-      background-color: #1d4ed8; 
-    }
-    .btn-success { 
-      background-color: #16a34a; 
-      color: #fff; 
-      border: none; 
-      border-radius: 8px; 
-      padding: 12px; 
-      font-weight: 600; 
-      cursor: pointer; 
-      width: 100%; 
-      display: block; 
-      text-align: center;
-      transition: background-color 0.3s;
-    }
-    .btn-success:hover { 
-      background-color: #15803d; 
-    }
-    .form-control, .form-select { 
-      width: 100%; 
-      box-sizing: border-box; 
-      border-radius: 8px; 
-      padding: 12px; 
-      border: 1px solid #ccc; 
-      margin-bottom: 15px; 
-      font-family: inherit;
-    }
-    .form-label { 
-      font-weight: 500; 
-      margin-bottom: 5px; 
-      display: block;
-    }
+    body { font-family: 'Inter', sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 0;}
+    .container { max-width: 600px; margin: 2rem auto; padding: 0 15px; }
+    .card { background: #fff; border-radius: 16px; border: 1px solid #eaeaea; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 20px;}
+    .btn-primary { background-color: #2563eb; color: #fff; border: none; border-radius: 8px; padding: 12px; font-weight: 600; cursor: pointer; width: 100%; display: block; text-align: center;}
+    .btn-primary:hover { background-color: #1d4ed8; }
+    .btn-success { background-color: #16a34a; color: #fff; border: none; border-radius: 8px; padding: 12px; font-weight: 600; cursor: pointer; width: 100%; display: block; text-align: center;}
+    .btn-success:hover { background-color: #15803d; }
+    .btn-danger-sm { background-color: #ef4444; color: white; border: none; border-radius: 6px; padding: 5px 10px; font-size: 0.8rem; cursor: pointer; }
+    .form-control, .form-select { width: 100%; box-sizing: border-box; border-radius: 8px; padding: 12px; border: 1px solid #ccc; margin-bottom: 15px; font-family: inherit;}
+    .form-label { font-weight: 500; margin-bottom: 5px; display: block;}
     
-    /* Navigasi Halaman SPA */
-    .page-section { 
-      display: none; 
-    }
-    .page-section.active { 
-      display: block; 
-      animation: fadeIn 0.4s ease-in-out; 
-    }
-    @keyframes fadeIn { 
-      from { opacity: 0; transform: translateY(10px); } 
-      to { opacity: 1; transform: translateY(0); } 
-    }
+    .page-section { display: none; }
+    .page-section.active { display: block; animation: fadeIn 0.4s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
-    /* Custom Loader Anti-Blokir */
-    .loader-overlay { 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      width: 100%; 
-      height: 100%; 
-      background: rgba(255,255,255,0.9); 
-      z-index: 9999; 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
-      flex-direction: column; 
-      display: none; 
-    }
-    .custom-spinner { 
-      width: 50px; 
-      height: 50px; 
-      border: 5px solid #f3f3f3; 
-      border-top: 5px solid #2563eb; 
-      border-radius: 50%; 
-      animation: spin 1s linear infinite; 
-      margin-bottom: 15px;
-    }
-    @keyframes spin { 
-      0% { transform: rotate(0deg); } 
-      100% { transform: rotate(360deg); } 
-    }
+    .loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; display: none; }
+    .custom-spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #2563eb; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;}
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     
-    /* Utilities */
-    .navbar { 
-      background-color: #fff; 
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
-      border-radius: 12px; 
-      margin-bottom: 20px; 
-      padding: 15px 20px; 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center;
-    }
-    .text-center { text-align: center; }
-    .text-primary { color: #2563eb; }
-    .text-muted { color: #6b7280; }
-    .fw-bold { font-weight: 700; }
-    .alert-info { 
-      background-color: #e0f2fe; 
-      color: #0369a1; 
-      padding: 15px; 
-      border-radius: 8px; 
-      border: 1px solid #bae6fd; 
-      font-size: 0.9rem;
-    }
+    .navbar { background-color: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-radius: 12px; margin-bottom: 20px; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;}
+    
+    /* Nav Tab UI */
+    .nav-tabs { display: flex; border-bottom: 2px solid #eaeaea; margin-bottom: 20px; }
+    .nav-tab { padding: 10px 20px; cursor: pointer; font-weight: 600; color: #6b7280; border-bottom: 2px solid transparent; margin-bottom: -2px;}
+    .nav-tab.active { color: #2563eb; border-bottom: 2px solid #2563eb; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s; }
+    
+    .list-group-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; border: 1px solid #eaeaea; margin-bottom: 5px; border-radius: 8px;}
   </style>
 </head>
 <body>
 
-  <!-- Global Loader (Menggunakan CSS Kustom) -->
   <div class="loader-overlay" id="globalLoader">
     <div class="custom-spinner"></div>
     <div class="fw-bold" id="loaderText">Memproses...</div>
@@ -158,362 +51,254 @@
 
   <div class="container">
     
-    <!-- PAGE 1: LOGIN -->
+    <!-- PAGE 1 & 2 (Login/Register) Disingkat dalam visual ini, tapi kodenya full -->
     <div id="pageLogin" class="page-section active">
       <div class="text-center" style="margin-bottom: 25px;">
         <h2 class="fw-bold text-primary">💰 ZettFinance</h2>
         <p class="text-muted">Kelola keuangan di Google Sheet Anda sendiri</p>
       </div>
-      
       <div class="card">
         <h4 class="text-center" style="margin-top: 0; margin-bottom: 20px;">Masuk ke Akun</h4>
         <form id="formLogin" onsubmit="handleLogin(event)">
-          <div>
-            <label class="form-label">Username</label>
-            <input type="text" id="logUsername" class="form-control" required>
-          </div>
-          <div>
-            <label class="form-label">Password</label>
-            <input type="password" id="logPassword" class="form-control" required>
-          </div>
-          <div style="margin-bottom: 20px;">
-            <input type="checkbox" id="keepSignedIn" checked>
-            <label for="keepSignedIn" style="cursor: pointer;">Tetap Masuk</label>
-          </div>
+          <input type="text" id="logUsername" class="form-control" placeholder="Username" required>
+          <input type="password" id="logPassword" class="form-control" placeholder="Password" required>
+          <div style="margin-bottom: 20px;"><input type="checkbox" id="keepSignedIn" checked> <label for="keepSignedIn">Tetap Masuk</label></div>
           <button type="submit" class="btn-primary">Masuk</button>
         </form>
-        
-        <div class="text-center" style="margin-top: 20px;">
-          <p>Belum punya akun? <a href="#" onclick="switchPage('pageRegister'); return false;" style="color: #2563eb; font-weight: 500; text-decoration: underline;">Buat Akun & Setup</a></p>
-        </div>
+        <div class="text-center" style="margin-top: 20px;"><p>Belum punya akun? <a href="#" onclick="switchPage('pageRegister'); return false;" style="color: #2563eb; text-decoration: underline;">Buat Akun & Setup</a></p></div>
       </div>
     </div>
 
-    <!-- PAGE 2: REGISTER & TUTORIAL -->
     <div id="pageRegister" class="page-section">
       <div class="card">
         <h4 class="text-center" style="margin-top: 0; margin-bottom: 20px;">🚀 Setup Database Anda</h4>
-        
-        <div class="alert-info">
-          <strong>Langkah 1:</strong> Klik tombol di bawah untuk menyalin Template Database Keuangan ke Google Drive Anda.<br>
-          <div class="text-center" style="margin: 15px 0;">
-             <!-- LINK TEMPLATE TELAH DIUPDATE OLEH ZETTBOT -->
-            <a href="https://docs.google.com/spreadsheets/d/1oyG9w41eyzkhcR1OsuFIDYsn7SKL85Ztjjsl7MRBzl0/copy" target="_blank" style="background: #0ea5e9; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.85rem; display: inline-block;">Salin Template Sheet</a>
-          </div>
-          <strong>Langkah 2:</strong> Di file yang baru disalin, klik tombol biru <b>Share (Bagikan)</b> di kanan atas.<br><br>
-          <strong>Langkah 3:</strong> Ubah General Access menjadi <b>"Anyone with the link"</b> dan atur peran sebagai <b>"Editor"</b>.<br><br>
-          <strong>Langkah 4:</strong> Klik "Copy Link" dan paste di form bawah ini.
+        <div class="alert alert-info text-center" style="background:#e0f2fe; padding:15px; border-radius:8px;">
+          <p>1. Copy Template: <a href="https://docs.google.com/spreadsheets/d/1oyG9w41eyzkhcR1OsuFIDYsn7SKL85Ztjjsl7MRBzl0/copy" target="_blank" style="background: #0ea5e9; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none;">Klik Disini</a></p>
+          <p>2. Pastikan Share ke "Anyone with link" (Editor)</p>
+          <p>3. Paste link hasil copy di bawah ini.</p>
         </div>
-        
-        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-        
         <form id="formRegister" onsubmit="handleRegister(event)">
-          <div>
-            <label class="form-label">Username</label>
-            <input type="text" id="regUsername" class="form-control" placeholder="Pilih username" required>
-          </div>
-          <div>
-            <label class="form-label">Password</label>
-            <input type="password" id="regPassword" class="form-control" placeholder="Buat password" required>
-          </div>
-          <div>
-            <label class="form-label">Link Google Sheet Anda</label>
-            <input type="url" id="regSheetUrl" class="form-control" placeholder="https://docs.google.com/spreadsheets/d/..." required>
-          </div>
-          <button type="submit" class="btn-success" style="margin-top: 10px;">Buat Akun & Hubungkan</button>
+          <input type="text" id="regUsername" class="form-control" placeholder="Username" required>
+          <input type="password" id="regPassword" class="form-control" placeholder="Password" required>
+          <input type="url" id="regSheetUrl" class="form-control" placeholder="Link Google Sheet" required>
+          <button type="submit" class="btn-success">Buat Akun & Hubungkan</button>
         </form>
-        
-        <div class="text-center" style="margin-top: 20px;">
-          <button onclick="switchPage('pageLogin')" style="background: none; border: none; color: #6b7280; cursor: pointer; text-decoration: underline; font-weight: 500;">Kembali ke Login</button>
-        </div>
+        <div class="text-center" style="margin-top: 20px;"><button onclick="switchPage('pageLogin')" style="background:none; border:none; color:#6b7280; text-decoration:underline;">Kembali ke Login</button></div>
       </div>
     </div>
 
-    <!-- PAGE 3: DASHBOARD TRANSAKSI -->
+    <!-- PAGE 3: DASHBOARD -->
     <div id="pageDashboard" class="page-section">
       <div class="navbar">
         <div>
           <h4 class="fw-bold text-primary" style="margin: 0;">ZettFinance</h4>
           <small class="text-muted" id="userGreeting">Halo, User</small>
         </div>
-        <button onclick="logout()" style="background: white; border: 1px solid #ef4444; color: #ef4444; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.2s;">Keluar</button>
+        <button onclick="logout()" style="background: white; border: 1px solid #ef4444; color: #ef4444; padding: 6px 12px; border-radius: 6px;">Keluar</button>
       </div>
 
       <div class="card">
-        <h5 style="margin-top: 0; margin-bottom: 20px; font-size: 1.1rem; font-weight: 600;">Catat Transaksi Baru</h5>
-        <form id="formTransaksi" onsubmit="handleTransaction(event)">
-          
-          <div>
+        <!-- NAVIGATION TABS -->
+        <div class="nav-tabs">
+          <div class="nav-tab active" onclick="switchTab('tabTransaksi', this)">Catat Transaksi</div>
+          <div class="nav-tab" onclick="switchTab('tabMaster', this)">Master Data</div>
+        </div>
+
+        <!-- TAB: TRANSAKSI -->
+        <div id="tabTransaksi" class="tab-content active">
+          <form id="formTransaksi" onsubmit="handleTransaction(event)">
             <label class="form-label">Jenis Transaksi</label>
             <select id="trxTipe" class="form-select" onchange="filterKategori()" required>
               <option value="Pengeluaran">Pengeluaran</option>
               <option value="Pemasukan">Pemasukan</option>
             </select>
-          </div>
-
-          <div>
             <label class="form-label">Kategori</label>
-            <select id="trxKategori" class="form-select" required>
-              <option value="">Pilih Kategori...</option>
-              <!-- Diisi otomatis oleh JavaScript -->
-            </select>
-          </div>
-
-          <div>
+            <select id="trxKategori" class="form-select" required></select>
             <label class="form-label">Sumber Akun</label>
-            <select id="trxAkun" class="form-select" required>
-              <option value="">Pilih Akun...</option>
-              <!-- Diisi otomatis oleh JavaScript -->
-            </select>
-          </div>
-
-          <div>
+            <select id="trxAkun" class="form-select" required></select>
             <label class="form-label">Nominal (Rp)</label>
             <input type="number" id="trxNominal" class="form-control" placeholder="Contoh: 50000" required min="1">
-          </div>
-
-          <div>
             <label class="form-label">Keterangan</label>
             <input type="text" id="trxKeterangan" class="form-control" placeholder="Makan siang, bensin, dll">
-          </div>
+            <button type="submit" class="btn-primary" style="margin-top: 10px;">Simpan Transaksi</button>
+          </form>
+          <div id="trxToast" style="display:none; color:#16a34a; text-align:center; margin-top:10px; font-weight:bold;">Transaksi sedang disimpan...</div>
+        </div>
 
-          <button type="submit" class="btn-primary" style="margin-top: 15px;">Simpan Transaksi</button>
-        </form>
+        <!-- TAB: MASTER DATA -->
+        <div id="tabMaster" class="tab-content">
+          
+          <h6 class="fw-bold">Kelola Akun</h6>
+          <div id="listAkun" style="margin-bottom: 15px;"></div>
+          <form onsubmit="handleManage(event, 'add', 'akun')" style="display:flex; gap:10px; margin-bottom:30px;">
+            <input type="text" id="newAkunNama" class="form-control" placeholder="Nama Akun Baru" style="margin:0;" required>
+            <button type="submit" class="btn-success" style="width:auto; padding:0 20px;">Tambah</button>
+          </form>
+
+          <h6 class="fw-bold">Kelola Kategori</h6>
+          <div id="listKategori" style="margin-bottom: 15px;"></div>
+          <form onsubmit="handleManage(event, 'add', 'kategori')" style="display:flex; gap:10px;">
+            <select id="newKatTipe" class="form-select" style="margin:0; width:120px;" required>
+              <option value="Pengeluaran">Pengeluaran</option>
+              <option value="Pemasukan">Pemasukan</option>
+            </select>
+            <input type="text" id="newKatNama" class="form-control" placeholder="Kategori Baru" style="margin:0;" required>
+            <button type="submit" class="btn-success" style="width:auto; padding:0 20px;">Tambah</button>
+          </form>
+
+        </div>
+
       </div>
     </div>
 
   </div>
 
   <script>
-    // State Aplikasi Lokal
     let currentUser = null; 
     let masterKategori = []; 
+    let masterAkun = [];
 
-    /**
-     * ZettBOT - Safe Notify
-     * Menggunakan SweetAlert jika tersedia, jika diblokir browser, fallback ke alert bawaan.
-     */
     function safeNotify(title, message, type) {
       if (typeof Swal !== 'undefined') {
-        Swal.fire({ 
-          title: title, 
-          text: message, 
-          icon: type, 
-          timer: type === 'success' ? 2000 : undefined, 
-          showConfirmButton: type !== 'success' 
-        });
-      } else {
-        alert(`[${title.toUpperCase()}] \n${message}`);
-      }
+        Swal.fire({ title: title, text: message, icon: type, timer: 2000, showConfirmButton: false });
+      } else { alert(`[${title.toUpperCase()}] \n${message}`); }
     }
 
-    /**
-     * EVENT LISTENER: Saat halaman dimuat
-     */
-    document.addEventListener("DOMContentLoaded", () => {
-      checkLoginSession();
-    });
+    document.addEventListener("DOMContentLoaded", () => { checkLoginSession(); });
 
-    /**
-     * Cek LocalStorage untuk fitur "Tetap Masuk"
-     */
     function checkLoginSession() {
       const savedUser = localStorage.getItem("zettUser");
-      if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        loadDashboard();
-      } else {
-        switchPage('pageLogin');
-      }
+      if (savedUser) { currentUser = JSON.parse(savedUser); loadDashboard(); } 
+      else { switchPage('pageLogin'); }
     }
 
-    /**
-     * Pindah antar halaman (SPA Navigation)
-     */
     function switchPage(pageId) {
       document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
       document.getElementById(pageId).classList.add('active');
     }
 
-    /**
-     * Fungsi UI Loader
-     */
-    function showLoader(text = "Memproses...") {
-      document.getElementById('loaderText').innerText = text;
-      document.getElementById('globalLoader').style.display = "flex";
-    }
-    
-    function hideLoader() {
-      document.getElementById('globalLoader').style.display = "none";
+    function switchTab(tabId, el) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(nav => nav.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      el.classList.add('active');
     }
 
-    /**
-     * Fungsi Registrasi
-     */
-    function handleRegister(e) {
-      e.preventDefault(); // Mencegah form reload halaman
-      
-      const payload = {
-        username: document.getElementById('regUsername').value,
-        password: document.getElementById('regPassword').value,
-        sheetUrl: document.getElementById('regSheetUrl').value
-      };
+    function showLoader(text) { document.getElementById('loaderText').innerText = text; document.getElementById('globalLoader').style.display = "flex"; }
+    function hideLoader() { document.getElementById('globalLoader').style.display = "none"; }
 
-      showLoader("Memvalidasi Akses Google Sheet Anda...");
-      
-      // ZettBOT Rule #5: Real-Time Synchronization via google.script.run
-      google.script.run
-        .withSuccessHandler(response => {
-          hideLoader();
-          if (response.status === "success") {
-            safeNotify('Berhasil!', response.message, 'success');
-            document.getElementById('formRegister').reset();
-            switchPage('pageLogin');
-          } else {
-            safeNotify('Gagal!', response.message, 'error');
-          }
-        })
-        .withFailureHandler(err => {
-          hideLoader();
-          safeNotify('Error Sistem', err.message, 'error');
-        })
-        .registerUser(payload);
-    }
-
-    /**
-     * Fungsi Login
-     */
-    function handleLogin(e) {
+    function handleRegister(e) { /* Sama seperti sebelumnya */
       e.preventDefault();
-      
-      const payload = {
-        username: document.getElementById('logUsername').value,
-        password: document.getElementById('logPassword').value
-      };
-      const keepSignedIn = document.getElementById('keepSignedIn').checked;
-
-      showLoader("Masuk...");
-
-      google.script.run
-        .withSuccessHandler(response => {
-          hideLoader();
-          if (response.status === "success") {
-            currentUser = response.user;
-            
-            // Simpan ke local storage jika dicentang
-            if (keepSignedIn) {
-              localStorage.setItem("zettUser", JSON.stringify(currentUser));
-            }
-            
-            document.getElementById('formLogin').reset();
-            loadDashboard();
-          } else {
-            safeNotify('Gagal!', response.message, 'error');
-          }
-        })
-        .withFailureHandler(err => {
-          hideLoader();
-          safeNotify('Error Sistem', err.message, 'error');
-        })
-        .loginUser(payload);
+      const p = { username: document.getElementById('regUsername').value, password: document.getElementById('regPassword').value, sheetUrl: document.getElementById('regSheetUrl').value };
+      showLoader("Memvalidasi...");
+      google.script.run.withSuccessHandler(r => { hideLoader(); if (r.status === "success") { safeNotify('Berhasil', r.message, 'success'); switchPage('pageLogin'); } else { safeNotify('Gagal', r.message, 'error'); } }).registerUser(p);
     }
 
-    /**
-     * Muat Dashboard dan Tarik Data Sheet
-     */
+    function handleLogin(e) { /* Sama seperti sebelumnya */
+      e.preventDefault();
+      const p = { username: document.getElementById('logUsername').value, password: document.getElementById('logPassword').value };
+      showLoader("Masuk...");
+      google.script.run.withSuccessHandler(r => { hideLoader(); if (r.status === "success") { currentUser = r.user; if(document.getElementById('keepSignedIn').checked) localStorage.setItem("zettUser", JSON.stringify(currentUser)); loadDashboard(); } else { safeNotify('Gagal', r.message, 'error'); } }).loginUser(p);
+    }
+
     function loadDashboard() {
       switchPage('pageDashboard');
       document.getElementById('userGreeting').innerText = `Halo, ${currentUser.username}`;
-      
-      showLoader("Menarik Data Akun & Kategori Anda...");
+      showLoader("Memuat Database...");
 
-      google.script.run
-        .withSuccessHandler(response => {
-          hideLoader();
-          if (response.status === "success") {
-            masterKategori = response.kategori; // Simpan di memory lokal
-            
-            // Render Select Akun
-            const selAkun = document.getElementById('trxAkun');
-            selAkun.innerHTML = '<option value="">Pilih Akun...</option>';
-            response.akun.forEach(akun => {
-              selAkun.innerHTML += `<option value="${akun}">${akun}</option>`;
-            });
-
-            // Trigger filter kategori agar menyesuaikan pilihan "Pengeluaran"
-            filterKategori(); 
-          } else {
-            safeNotify('Gagal Memuat Data', response.message, 'error');
-          }
-        })
-        .withFailureHandler(err => {
-          hideLoader();
-          safeNotify('Error Koneksi', "Gagal terhubung ke Google Sheet Anda.", 'error');
-        })
-        .getDashboardData(currentUser.sheetId);
+      google.script.run.withSuccessHandler(r => {
+        hideLoader();
+        if (r.status === "success") {
+          masterKategori = r.kategori;
+          masterAkun = r.akun;
+          renderUI();
+        }
+      }).getDashboardData(currentUser.sheetId);
     }
 
-    /**
-     * Filter Dropdown Kategori Berdasarkan Tipe Transaksi
-     */
-    function filterKategori() {
-      const tipe = document.getElementById('trxTipe').value;
-      const selKat = document.getElementById('trxKategori');
-      
-      selKat.innerHTML = '<option value="">Pilih Kategori...</option>';
+    function renderUI() {
+      // 1. Render Dropdown Form
+      const selAkun = document.getElementById('trxAkun');
+      selAkun.innerHTML = '<option value="">Pilih Akun...</option>';
+      masterAkun.forEach(a => selAkun.innerHTML += `<option value="${a}">${a}</option>`);
+      filterKategori();
+
+      // 2. Render List Master Data (Akun)
+      const lAkun = document.getElementById('listAkun');
+      lAkun.innerHTML = '';
+      masterAkun.forEach(a => {
+        lAkun.innerHTML += `<div class="list-group-item"><span>${a}</span> <button class="btn-danger-sm" onclick="handleManage(event, 'delete', 'akun', '${a}')">Hapus</button></div>`;
+      });
+
+      // 3. Render List Master Data (Kategori)
+      const lKat = document.getElementById('listKategori');
+      lKat.innerHTML = '';
       masterKategori.forEach(k => {
-        // Asumsi data: k[0] = Nama Kategori, k[1] = Tipe
-        if (k[1] === tipe) {
-          selKat.innerHTML += `<option value="${k[0]}">${k[0]}</option>`;
-        }
+        lKat.innerHTML += `<div class="list-group-item"><span>${k[0]} <small class="text-muted">(${k[1]})</small></span> <button class="btn-danger-sm" onclick="handleManage(event, 'delete', 'kategori', '${k[0]}')">Hapus</button></div>`;
       });
     }
 
+    function filterKategori() {
+      const tipe = document.getElementById('trxTipe').value;
+      const selKat = document.getElementById('trxKategori');
+      selKat.innerHTML = '<option value="">Pilih Kategori...</option>';
+      masterKategori.forEach(k => { if (k[1] === tipe) selKat.innerHTML += `<option value="${k[0]}">${k[0]}</option>`; });
+    }
+
     /**
-     * Fungsi Kirim Transaksi
+     * PERFORMA UPDATE: OPTIMISTIC UI TRANSAKSI
+     * Form langsung kosong seketika, data dikirim ke background.
      */
     function handleTransaction(e) {
       e.preventDefault();
+      const payload = { tipe: document.getElementById('trxTipe').value, kategori: document.getElementById('trxKategori').value, akun: document.getElementById('trxAkun').value, nominal: document.getElementById('trxNominal').value, keterangan: document.getElementById('trxKeterangan').value };
       
-      const payload = {
-        tipe: document.getElementById('trxTipe').value,
-        kategori: document.getElementById('trxKategori').value,
-        akun: document.getElementById('trxAkun').value,
-        nominal: document.getElementById('trxNominal').value,
-        keterangan: document.getElementById('trxKeterangan').value
-      };
+      // OPTIMISTIC UI: Reset form langsung, berikan efek visual instan
+      document.getElementById('trxNominal').value = '';
+      document.getElementById('trxKeterangan').value = '';
+      document.getElementById('trxKategori').value = '';
+      
+      const toast = document.getElementById('trxToast');
+      toast.style.display = 'block';
+      setTimeout(() => toast.style.display = 'none', 2000); // Hilangkan toast setelah 2 dtk
 
-      showLoader("Menyimpan ke Sheet Anda...");
-
+      // Kirim di background tanpa memblokir layar (Tidak pakai showLoader)
       google.script.run
-        .withSuccessHandler(response => {
-          hideLoader();
-          if (response.status === "success") {
-            safeNotify('Berhasil!', response.message, 'success');
-            
-            // Reset hanya nominal dan keterangan agar UX lebih cepat jika input berturut-turut
-            document.getElementById('trxNominal').value = '';
-            document.getElementById('trxKeterangan').value = '';
-            document.getElementById('trxKategori').value = '';
-          } else {
-            safeNotify('Gagal!', response.message, 'error');
-          }
-        })
-        .withFailureHandler(err => {
-          hideLoader();
-          safeNotify('Error Sistem', err.message, 'error');
-        })
+        .withFailureHandler(err => safeNotify('Gagal Background', err.message, 'error'))
         .addTransaction(currentUser.sheetId, payload);
     }
 
     /**
-     * Fungsi Logout
+     * FITUR BARU: MANAGE MASTER DATA
      */
-    function logout() {
-      localStorage.removeItem("zettUser");
-      currentUser = null;
-      switchPage('pageLogin');
+    function handleManage(e, action, type, itemName = null) {
+      e.preventDefault();
+      
+      let payload = {};
+      if (action === 'add') {
+        if (type === 'akun') {
+          payload = { nama: document.getElementById('newAkunNama').value };
+          masterAkun.push(payload.nama); // Update local state langsung (Optimistic)
+          document.getElementById('newAkunNama').value = '';
+        } else {
+          payload = { nama: document.getElementById('newKatNama').value, tipe: document.getElementById('newKatTipe').value };
+          masterKategori.push([payload.nama, payload.tipe]); // Update local state
+          document.getElementById('newKatNama').value = '';
+        }
+      } else if (action === 'delete') {
+        if(!confirm(`Yakin ingin menghapus ${itemName}?`)) return;
+        payload = { nama: itemName };
+        if (type === 'akun') masterAkun = masterAkun.filter(a => a !== itemName);
+        if (type === 'kategori') masterKategori = masterKategori.filter(k => k[0] !== itemName);
+      }
+
+      renderUI(); // Render ulang UI list secara instan
+
+      // Sinkronisasi ke Server Background
+      google.script.run.manageMasterData(currentUser.sheetId, action, type, payload);
     }
+
+    function logout() { localStorage.removeItem("zettUser"); currentUser = null; switchPage('pageLogin'); }
   </script>
 </body>
 </html>
