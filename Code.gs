@@ -10,9 +10,6 @@ function doGet(e) {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
-/**
- * UTILITY: Ekstrak ID dari URL Google Sheet
- */
 function extractSheetId(url) {
   try {
     const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
@@ -22,99 +19,62 @@ function extractSheetId(url) {
   }
 }
 
-/**
- * REGISTER USER
- */
 function registerUser(data) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const userSheet = ss.getSheetByName("Users");
-    
-    // Cek apakah username sudah ada (Anti spasi & Case Insensitive)
     const dataUsers = userSheet.getDataRange().getValues();
     const inputUser = data.username.toString().trim().toLowerCase();
     
     for (let i = 1; i < dataUsers.length; i++) {
       if (dataUsers[i][2].toString().trim().toLowerCase() === inputUser) {
-        throw new Error("Username sudah digunakan. Silakan pilih yang lain.");
+        throw new Error("Username sudah digunakan.");
       }
     }
     
-    // Ekstrak ID
     const sheetId = extractSheetId(data.sheetUrl);
-    if (!sheetId) {
-      throw new Error("URL tidak valid. Pastikan Anda menyalin URL Google Sheet yang benar.");
-    }
+    if (!sheetId) throw new Error("URL tidak valid.");
     
-    // TES AKSES
     try {
       const testOpen = SpreadsheetApp.openById(sheetId);
       if (!testOpen.getSheetByName("Transaksi") || !testOpen.getSheetByName("Kategori") || !testOpen.getSheetByName("Akun")) {
-         throw new Error("File Sheet Anda tidak memiliki tab 'Transaksi', 'Kategori', atau 'Akun'. Pastikan Template sudah disalin dengan benar.");
+         throw new Error("Format Template Sheet salah.");
       }
     } catch (openErr) {
-      throw new Error("Akses ditolak! Pastikan Anda sudah mengubah akses share menjadi 'Anyone with the link' (Siapa saja yang memiliki link) -> 'Editor'.");
+      throw new Error("Akses ditolak! Pastikan akses 'Anyone with the link' -> 'Editor'.");
     }
     
-    // Simpan data
     const timestamp = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'dd/MM/yyyy HH:mm:ss');
     const idUser = "USR-" + new Date().getTime();
     
-    userSheet.appendRow([
-      timestamp,
-      idUser,
-      data.username.trim(), // Simpan username yang sudah di-trim
-      data.password.toString(), // Paksa simpan sebagai string
-      sheetId
-    ]);
-    
-    SpreadsheetApp.flush(); // Anti-Delay Sync
-    
+    userSheet.appendRow([timestamp, idUser, data.username.trim(), data.password.toString(), sheetId]);
+    SpreadsheetApp.flush(); 
     return { status: "success", message: "Registrasi berhasil! Silakan login." };
   } catch (err) {
     return { status: "error", message: err.message };
   }
 }
 
-/**
- * LOGIN USER (FIXED)
- */
 function loginUser(data) {
   try {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const userSheet = ss.getSheetByName("Users");
     const dataUsers = userSheet.getDataRange().getValues();
     
-    // Standarisasi Input User (Hapus spasi, jadikan huruf kecil, jadikan string)
     const inputUser = data.username.toString().trim().toLowerCase();
     const inputPass = data.password.toString();
     
     for (let i = 1; i < dataUsers.length; i++) {
-      const row = dataUsers[i];
-      // Standarisasi Data Database (Mencegah bug tipe data Number vs String)
-      const dbUser = row[2].toString().trim().toLowerCase();
-      const dbPass = row[3].toString();
-      
-      if (dbUser === inputUser && dbPass === inputPass) {
-        return {
-          status: "success",
-          user: {
-            idUser: row[1],
-            username: row[2], // Tampilkan username asli dari database
-            sheetId: row[4]
-          }
-        };
+      if (dataUsers[i][2].toString().trim().toLowerCase() === inputUser && dataUsers[i][3].toString() === inputPass) {
+        return { status: "success", user: { idUser: dataUsers[i][1], username: dataUsers[i][2], sheetId: dataUsers[i][4] } };
       }
     }
-    throw new Error("Username atau Password salah. Periksa kembali ketikan Anda.");
+    throw new Error("Username atau Password salah.");
   } catch (err) {
     return { status: "error", message: err.message };
   }
 }
 
-/**
- * AMBIL DATA KATEGORI & AKUN
- */
 function getDashboardData(sheetId) {
   try {
     const userSs = SpreadsheetApp.openById(sheetId);
@@ -125,19 +85,12 @@ function getDashboardData(sheetId) {
     const accSheet = userSs.getSheetByName("Akun");
     const accData = accSheet.getRange(2, 2, accSheet.getLastRow() || 2, 1).getValues().filter(r => r[0] !== "");
     
-    return {
-      status: "success",
-      kategori: catData, 
-      akun: accData.map(r => r[0]) 
-    };
+    return { status: "success", kategori: catData, akun: accData.map(r => r[0]) };
   } catch (err) {
-    return { status: "error", message: "Gagal mengambil master data: " + err.message };
+    return { status: "error", message: "Gagal mengambil data: " + err.message };
   }
 }
 
-/**
- * TAMBAH TRANSAKSI
- */
 function addTransaction(sheetId, data) {
   try {
     const userSs = SpreadsheetApp.openById(sheetId);
@@ -146,21 +99,45 @@ function addTransaction(sheetId, data) {
     const timestamp = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'dd/MM/yyyy HH:mm:ss');
     const idTrans = "TRX-" + new Date().getTime();
     
-    const rowData = [
-      timestamp,
-      idTrans,
-      data.akun,
-      data.kategori,
-      data.tipe,
-      data.nominal,
-      data.keterangan
-    ];
-    
-    transSheet.appendRow(rowData);
+    transSheet.appendRow([timestamp, idTrans, data.akun, data.kategori, data.tipe, data.nominal, data.keterangan]);
     SpreadsheetApp.flush(); 
-    
-    return { status: "success", message: "Transaksi berhasil dicatat!" };
+    return { status: "success", message: "Transaksi disimpan!" };
   } catch (err) {
-    return { status: "error", message: "Gagal menyimpan transaksi: " + err.message };
+    return { status: "error", message: "Gagal menyimpan: " + err.message };
+  }
+}
+
+/**
+ * FITUR BARU: KELOLA MASTER DATA (AKUN & KATEGORI)
+ */
+function manageMasterData(sheetId, action, type, data) {
+  try {
+    const userSs = SpreadsheetApp.openById(sheetId);
+    const sheetName = type === 'akun' ? 'Akun' : 'Kategori';
+    const sheet = userSs.getSheetByName(sheetName);
+    
+    if (action === 'add') {
+      const idStr = (type === 'akun' ? 'AKN-' : 'KAT-') + new Date().getTime();
+      if (type === 'akun') {
+        sheet.appendRow([idStr, data.nama, data.saldo || 0]);
+      } else {
+        sheet.appendRow([idStr, data.nama, data.tipe]);
+      }
+    } 
+    else if (action === 'delete') {
+      const allData = sheet.getDataRange().getValues();
+      for (let i = 1; i < allData.length; i++) {
+        // Asumsi nama selalu di kolom B (indeks 1)
+        if (allData[i][1].toString() === data.nama) {
+          sheet.deleteRow(i + 1); // +1 karena getValues array mulai dari 0, row google sheet mulai 1
+          break;
+        }
+      }
+    }
+    
+    SpreadsheetApp.flush();
+    return { status: "success", message: "Data master diperbarui!" };
+  } catch (err) {
+    return { status: "error", message: "Gagal update master data: " + err.message };
   }
 }
